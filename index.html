@@ -6,94 +6,120 @@
     <title>Gestión de Préstamos</title>
     <style>
         body {
-            background: #f4f6f8;
+            background: linear-gradient(135deg, #e3f0ff 0%, #f9fbe7 100%);
             font-family: 'Segoe UI', Arial, sans-serif;
             margin: 0;
             padding: 0;
         }
         h2 {
             text-align: center;
-            margin-top: 24px;
-            color: #1976d2;
-            font-size: 2rem;
+            margin-top: 32px;
+            color: #1565c0;
+            font-size: 2.1rem;
             letter-spacing: 1px;
+            font-weight: 700;
         }
         form {
             background: #fff;
-            padding: 18px 14px;
-            margin: 18px auto 18px auto;
-            border-radius: 14px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+            padding: 22px 18px;
+            margin: 24px auto 18px auto;
+            border-radius: 18px;
+            box-shadow: 0 4px 16px rgba(21,101,192,0.10);
             max-width: 420px;
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 16px;
         }
         form input, form select {
-            padding: 13px;
-            border-radius: 8px;
+            padding: 15px;
+            border-radius: 10px;
             border: 1px solid #bdbdbd;
-            font-size: 1.1rem;
+            font-size: 1.15rem;
             background: #f7f9fa;
+            transition: border 0.2s;
+        }
+        form input:focus, form select:focus {
+            border: 1.5px solid #1976d2;
+            outline: none;
         }
         form button {
-            background: #1976d2;
+            background: linear-gradient(90deg, #1976d2 60%, #64b5f6 100%);
             color: #fff;
             border: none;
-            border-radius: 8px;
-            padding: 13px;
-            font-size: 1.1rem;
-            font-weight: 500;
+            border-radius: 10px;
+            padding: 15px;
+            font-size: 1.15rem;
+            font-weight: 600;
             cursor: pointer;
-            transition: background 0.2s;
+            transition: background 0.2s, box-shadow 0.2s;
             margin-top: 4px;
+            box-shadow: 0 2px 8px rgba(25,118,210,0.08);
         }
         form button:hover {
             background: #1565c0;
+            box-shadow: 0 4px 16px rgba(25,118,210,0.15);
         }
         .prestamo-card {
             background: #fff;
-            border-radius: 14px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.10);
-            margin: 16px auto;
+            border-radius: 18px;
+            box-shadow: 0 4px 16px rgba(21,101,192,0.10);
+            margin: 18px auto;
             max-width: 420px;
-            padding: 18px 14px;
+            padding: 20px 16px;
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 10px;
+            border-left: 6px solid #1976d2;
+            position: relative;
+        }
+        .prestamo-card::after {
+            content: '';
+            position: absolute;
+            right: 18px;
+            top: 18px;
+            width: 32px;
+            height: 32px;
+            background: url('https://img.icons8.com/fluency/48/loan.png') no-repeat center center;
+            background-size: contain;
+            opacity: 0.13;
         }
         .prestamo-info {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 8px 16px;
-            font-size: 1.05rem;
+            gap: 10px 18px;
+            font-size: 1.07rem;
         }
         .prestamo-info div {
             color: #333;
+            background: #f7f9fa;
+            border-radius: 7px;
+            padding: 7px 8px;
         }
         .prestamo-actions {
             display: flex;
-            gap: 8px;
-            margin-top: 10px;
+            gap: 10px;
+            margin-top: 12px;
         }
         .prestamo-actions button {
             flex: 1;
-            padding: 11px;
-            font-size: 1rem;
-            border-radius: 8px;
+            padding: 13px;
+            font-size: 1.07rem;
+            border-radius: 10px;
             border: none;
-            font-weight: 500;
+            font-weight: 600;
+            box-shadow: 0 2px 8px rgba(25,118,210,0.07);
+            transition: background 0.2s;
         }
         .prestamo-actions button[onclick*="editar"] {
-            background: #ffb300;
+            background: linear-gradient(90deg, #ffb300 70%, #ffe082 100%);
             color: #fff;
         }
         .prestamo-actions button[onclick*="eliminar"] {
-            background: #e53935;
+            background: linear-gradient(90deg, #e53935 70%, #ff8a80 100%);
             color: #fff;
         }
         .prestamo-actions button[onclick*="mostrarCuotas"] {
-            background: #43a047;
+            background: linear-gradient(90deg, #43a047 70%, #a5d6a7 100%);
             color: #fff;
         }
         /* Modal */
@@ -103,55 +129,58 @@
         #modalCuotas > div {
             min-width: 90vw;
             max-width: 98vw;
-            padding: 10px;
-            border-radius: 14px;
+            padding: 14px;
+            border-radius: 18px;
+            background: #fff;
+            box-shadow: 0 4px 16px rgba(21,101,192,0.13);
         }
         #modalCuotas h3 {
             margin-top: 0;
             color: #1976d2;
-            font-size: 1.3rem;
+            font-size: 1.35rem;
+            font-weight: 700;
         }
         #modalCuotas form input, #modalCuotas form button, #modalCuotas form select {
             width: 98%;
             margin-bottom: 10px;
-            font-size: 1rem;
-            border-radius: 8px;
+            font-size: 1.07rem;
+            border-radius: 10px;
         }
         #modalCuotas table {
             width: 100%;
             margin-bottom: 10px;
             box-shadow: none;
             border-radius: 0;
-            font-size: 0.95rem;
+            font-size: 1rem;
         }
         #modalCuotas th {
             background: #2196f3;
             color: #fff;
-            font-size: 1rem;
+            font-size: 1.07rem;
         }
         #modalCuotas td {
             padding: 8px 4px;
         }
         #modalCuotas button {
-            font-size: 1rem;
-            border-radius: 8px;
+            font-size: 1.07rem;
+            border-radius: 10px;
         }
         @media (max-width: 600px) {
             h2 {
-                font-size: 1.3rem;
+                font-size: 1.35rem;
             }
             form, .prestamo-card {
                 max-width: 98vw;
-                padding: 10px 4px;
+                padding: 12px 4px;
             }
             .prestamo-info {
-                font-size: 0.97rem;
+                font-size: 1rem;
                 grid-template-columns: 1fr;
             }
             #modalCuotas > div {
                 min-width: 99vw;
                 max-width: 99vw;
-                padding: 5px;
+                padding: 7px;
             }
         }
     </style>
