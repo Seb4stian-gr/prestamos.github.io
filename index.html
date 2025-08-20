@@ -18,14 +18,14 @@
         }
         form {
             background: #fff;
-            padding: 20px 30px;
+            padding: 20px 10px;
             margin: 30px auto 20px auto;
             border-radius: 10px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.08);
             max-width: 500px;
             display: flex;
             flex-wrap: wrap;
-            gap: 15px;
+            gap: 10px;
             justify-content: center;
         }
         form input, form select, form button {
@@ -33,6 +33,8 @@
             border-radius: 5px;
             border: 1px solid #ccc;
             font-size: 1rem;
+            width: 100%;
+            box-sizing: border-box;
         }
         form button {
             background: #1976d2;
@@ -40,23 +42,26 @@
             border: none;
             cursor: pointer;
             transition: background 0.2s;
+            width: 100%;
         }
         form button:hover {
             background: #1565c0;
         }
         table {
-            width: 95%;
+            width: 99%;
             margin: 0 auto 40px auto;
             border-collapse: collapse;
             background: #fff;
             box-shadow: 0 2px 8px rgba(0,0,0,0.08);
             border-radius: 10px;
-            overflow: hidden;
+            overflow-x: auto;
+            display: block;
         }
         th, td {
             padding: 12px 8px;
             text-align: center;
             border-bottom: 1px solid #eee;
+            font-size: 1rem;
         }
         th {
             background: #1976d2;
@@ -92,34 +97,72 @@
             backdrop-filter: blur(2px);
         }
         #modalCuotas > div {
-            min-width: 320px;
-            max-width: 400px;
+            min-width: 90vw;
+            max-width: 98vw;
+            padding: 10px;
         }
         #modalCuotas h3 {
             margin-top: 0;
             color: #1976d2;
         }
         #modalCuotas form input, #modalCuotas form button, #modalCuotas form select {
-            width: 90%;
+            width: 98%;
             margin-bottom: 10px;
+            font-size: 1rem;
         }
         #modalCuotas table {
             width: 100%;
             margin-bottom: 10px;
             box-shadow: none;
             border-radius: 0;
+            font-size: 0.95rem;
         }
         #modalCuotas th {
             background: #2196f3;
         }
+        /* Responsive */
         @media (max-width: 600px) {
-            form, table {
-                width: 99%;
+            form {
+                max-width: 99vw;
                 padding: 10px;
+                gap: 7px;
             }
-            th, td {
-                font-size: 0.9rem;
-                padding: 8px 4px;
+            table, thead, tbody, th, td, tr {
+                display: block;
+                width: 100%;
+            }
+            thead {
+                display: none;
+            }
+            tr {
+                margin-bottom: 15px;
+                background: #fff;
+                border-radius: 8px;
+                box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+                padding: 8px 0;
+            }
+            td {
+                text-align: left;
+                padding: 8px 10px;
+                position: relative;
+                font-size: 0.97rem;
+            }
+            td:before {
+                content: attr(data-label);
+                font-weight: bold;
+                color: #1976d2;
+                display: block;
+                margin-bottom: 3px;
+            }
+            button {
+                width: 100%;
+                margin: 4px 0;
+                font-size: 1rem;
+            }
+            #modalCuotas > div {
+                min-width: 98vw;
+                max-width: 99vw;
+                padding: 5px;
             }
         }
     </style>
@@ -159,7 +202,6 @@
             <!-- Aquí se agregan los préstamos -->
         </tbody>
     </table>
-
     <script>
     const form = document.getElementById('prestamoForm');
     const tabla = document.getElementById('tablaPrestamos');
@@ -178,17 +220,17 @@
 
             const fila = document.createElement('tr');
             fila.innerHTML = `
-                <td>${prestamo.nombre}</td>
-                <td>${prestamo.monto}</td>
-                <td>${prestamo.fecha}</td>
-                <td>${prestamo.interes}</td>
-                <td>${prestamo.frecuencia}</td>
-                <td>${totalOriginal}</td>
-                <td>${totalRestante}</td>
-                <td>
+                <td data-label="Nombre">${prestamo.nombre}</td>
+                <td data-label="Monto">${prestamo.monto}</td>
+                <td data-label="Fecha">${prestamo.fecha}</td>
+                <td data-label="Interés">${prestamo.interes}</td>
+                <td data-label="Frecuencia">${prestamo.frecuencia}</td>
+                <td data-label="Total">${totalOriginal}</td>
+                <td data-label="Restante">${totalRestante}</td>
+                <td data-label="Cuotas">
                     <button onclick="mostrarCuotas(${index})">Cuotas (${prestamo.cuotas.length})</button>
                 </td>
-                <td>
+                <td data-label="Acciones">
                     <button onclick="editarPrestamo(${index})">Editar</button>
                     <button onclick="eliminarPrestamo(${index})">Eliminar</button>
                 </td>
