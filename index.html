@@ -13,82 +13,86 @@
         }
         h2 {
             text-align: center;
-            margin-top: 30px;
-            color: #333;
+            margin-top: 24px;
+            color: #1976d2;
+            font-size: 2rem;
+            letter-spacing: 1px;
         }
         form {
             background: #fff;
-            padding: 20px 10px;
-            margin: 30px auto 20px auto;
-            border-radius: 10px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-            max-width: 500px;
+            padding: 18px 14px;
+            margin: 18px auto 18px auto;
+            border-radius: 14px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+            max-width: 420px;
             display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            justify-content: center;
+            flex-direction: column;
+            gap: 12px;
         }
-        form input, form select, form button {
-            padding: 10px;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-            font-size: 1rem;
-            width: 100%;
-            box-sizing: border-box;
+        form input, form select {
+            padding: 13px;
+            border-radius: 8px;
+            border: 1px solid #bdbdbd;
+            font-size: 1.1rem;
+            background: #f7f9fa;
         }
         form button {
             background: #1976d2;
             color: #fff;
             border: none;
+            border-radius: 8px;
+            padding: 13px;
+            font-size: 1.1rem;
+            font-weight: 500;
             cursor: pointer;
             transition: background 0.2s;
-            width: 100%;
+            margin-top: 4px;
         }
         form button:hover {
             background: #1565c0;
         }
-        table {
-            width: 99%;
-            margin: 0 auto 40px auto;
-            border-collapse: collapse;
+        .prestamo-card {
             background: #fff;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-            border-radius: 10px;
-            overflow-x: auto;
-            display: block;
+            border-radius: 14px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+            margin: 16px auto;
+            max-width: 420px;
+            padding: 18px 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
         }
-        th, td {
-            padding: 12px 8px;
-            text-align: center;
-            border-bottom: 1px solid #eee;
+        .prestamo-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px 16px;
+            font-size: 1.05rem;
+        }
+        .prestamo-info div {
+            color: #333;
+        }
+        .prestamo-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+        }
+        .prestamo-actions button {
+            flex: 1;
+            padding: 11px;
             font-size: 1rem;
-        }
-        th {
-            background: #1976d2;
-            color: #fff;
+            border-radius: 8px;
+            border: none;
             font-weight: 500;
         }
-        tr:last-child td {
-            border-bottom: none;
-        }
-        button {
-            padding: 7px 14px;
-            border-radius: 5px;
-            border: none;
-            margin: 2px;
-            font-size: 0.95rem;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-        button[onclick*="editar"] {
+        .prestamo-actions button[onclick*="editar"] {
             background: #ffb300;
             color: #fff;
         }
-        button[onclick*="eliminar"] {
+        .prestamo-actions button[onclick*="eliminar"] {
             background: #e53935;
             color: #fff;
         }
-        button[onclick*="mostrarCuotas"] {
+        .prestamo-actions button[onclick*="mostrarCuotas"] {
             background: #43a047;
             color: #fff;
         }
@@ -100,15 +104,18 @@
             min-width: 90vw;
             max-width: 98vw;
             padding: 10px;
+            border-radius: 14px;
         }
         #modalCuotas h3 {
             margin-top: 0;
             color: #1976d2;
+            font-size: 1.3rem;
         }
         #modalCuotas form input, #modalCuotas form button, #modalCuotas form select {
             width: 98%;
             margin-bottom: 10px;
             font-size: 1rem;
+            border-radius: 8px;
         }
         #modalCuotas table {
             width: 100%;
@@ -119,48 +126,30 @@
         }
         #modalCuotas th {
             background: #2196f3;
+            color: #fff;
+            font-size: 1rem;
         }
-        /* Responsive */
-        @media (max-width: 580px) {
-            form {
-                max-width: 99vw;
-                padding: 10px;
-                gap: 7px;
+        #modalCuotas td {
+            padding: 8px 4px;
+        }
+        #modalCuotas button {
+            font-size: 1rem;
+            border-radius: 8px;
+        }
+        @media (max-width: 600px) {
+            h2 {
+                font-size: 1.3rem;
             }
-            table, thead, tbody, th, td, tr {
-                display: block;
-                width: 95%;
+            form, .prestamo-card {
+                max-width: 98vw;
+                padding: 10px 4px;
             }
-            thead {
-                display: none;
-            }
-            tr {
-                margin-bottom: 15px;
-                background: #fff;
-                border-radius: 8px;
-                box-shadow: 0 1px 4px rgba(0,0,0,0.07);
-                padding: 8px 0;
-            }
-            td {
-                text-align: left;
-                padding: 8px 10px;
-                position: relative;
+            .prestamo-info {
                 font-size: 0.97rem;
-            }
-            td:before {
-                content: attr(data-label);
-                font-weight: bold;
-                color: #1976d2;
-                display: block;
-                margin-bottom: 3px;
-            }
-            button {
-                width: 100%;
-                margin: 4px 0;
-                font-size: 1rem;
+                grid-template-columns: 1fr;
             }
             #modalCuotas > div {
-                min-width: 98vw;
+                min-width: 99vw;
                 max-width: 99vw;
                 padding: 5px;
             }
@@ -184,27 +173,11 @@
         <button type="submit">Agregar</button>
     </form>
 
-    <table>
-        <thead>
-            <tr>
-                <th>nombre</th>
-                <th>monto</th>
-                <th>fecha</th>
-                <th>interes</th>
-                <th>frecuencia</th>
-                <th>total</th>
-                <th>restante</th>
-                <th>cuotas</th>
-                <th>acciones</th>
-            </tr>
-        </thead>
-        <tbody id="tablaPrestamos">
-            <!-- Aquí se agregan los préstamos -->
-        </tbody>
-    </table>
+    <div id="prestamosContainer"></div>
+
     <script>
     const form = document.getElementById('prestamoForm');
-    const tabla = document.getElementById('tablaPrestamos');
+    const container = document.getElementById('prestamosContainer');
     let prestamos = JSON.parse(localStorage.getItem('prestamos')) || [];
 
     function guardarPrestamos() {
@@ -212,30 +185,32 @@
     }
 
     function renderPrestamos() {
-        tabla.innerHTML = '';
+        container.innerHTML = '';
         prestamos.forEach((prestamo, index) => {
             const totalOriginal = (Number(prestamo.monto) + (Number(prestamo.monto) * Number(prestamo.interes) / 100)).toFixed(2);
             const totalPagado = prestamo.cuotas.reduce((sum, cuota) => sum + Number(cuota.monto), 0);
             const totalRestante = (totalOriginal - totalPagado).toFixed(2);
 
-            const fila = document.createElement('tr');
-            fila.innerHTML = `
-                <td data-label="Nombre">${prestamo.nombre}</td>
-                <td data-label="Monto">${prestamo.monto}</td>
-                <td data-label="Fecha">${prestamo.fecha}</td>
-                <td data-label="Interés">${prestamo.interes}</td>
-                <td data-label="Frecuencia">${prestamo.frecuencia}</td>
-                <td data-label="Total">${totalOriginal}</td>
-                <td data-label="Restante">${totalRestante}</td>
-                <td data-label="Cuotas">
-                    <button onclick="mostrarCuotas(${index})">Cuotas (${prestamo.cuotas.length})</button>
-                </td>
-                <td data-label="Acciones">
+            const card = document.createElement('div');
+            card.className = 'prestamo-card';
+            card.innerHTML = `
+                <div class="prestamo-info">
+                    <div><strong>Nombre:</strong> ${prestamo.nombre}</div>
+                    <div><strong>Monto:</strong> $${prestamo.monto}</div>
+                    <div><strong>Fecha:</strong> ${prestamo.fecha}</div>
+                    <div><strong>Interés:</strong> ${prestamo.interes}%</div>
+                    <div><strong>Frecuencia:</strong> ${prestamo.frecuencia}</div>
+                    <div><strong>Total:</strong> $${totalOriginal}</div>
+                    <div><strong>Restante:</strong> $${totalRestante}</div>
+                    <div><strong>Cuotas:</strong> ${prestamo.cuotas.length}</div>
+                </div>
+                <div class="prestamo-actions">
+                    <button onclick="mostrarCuotas(${index})">Cuotas</button>
                     <button onclick="editarPrestamo(${index})">Editar</button>
                     <button onclick="eliminarPrestamo(${index})">Eliminar</button>
-                </td>
+                </div>
             `;
-            tabla.appendChild(fila);
+            container.appendChild(card);
         });
     }
 
@@ -303,11 +278,9 @@
         };
     }
 
-    // Modal para cuotas
     window.mostrarCuotas = function(index) {
         const prestamo = prestamos[index];
-        let cuotasHtml = '<h3>Cuotas de ' + prestamo.nombre + '</h3>';
-        cuotasHtml += `
+        let cuotasHtml = `<h3>Cuotas de ${prestamo.nombre}</h3>
             <form id="cuotaForm">
                 <input type="number" id="montoCuota" placeholder="Monto cuota" required>
                 <input type="date" id="fechaCuota" required>
@@ -324,7 +297,7 @@
                 <tbody>
                     ${prestamo.cuotas.map((cuota, i) => `
                         <tr>
-                            <td>${cuota.monto}</td>
+                            <td>$${cuota.monto}</td>
                             <td>${cuota.fecha}</td>
                             <td>
                                 <button onclick="editarCuota(${index},${i})">Editar</button>
@@ -344,7 +317,7 @@
             const fechaCuota = document.getElementById('fechaCuota').value;
             prestamos[index].cuotas.push({ monto: montoCuota, fecha: fechaCuota });
             guardarPrestamos();
-            mostrarCuotas(index); // Actualiza la vista
+            mostrarCuotas(index);
         };
     }
 
@@ -380,7 +353,6 @@
         };
     }
 
-    // Modal simple
     function mostrarModal(html) {
         let modal = document.getElementById('modalCuotas');
         if (!modal) {
@@ -398,7 +370,7 @@
             modal.style.zIndex = '1000';
             document.body.appendChild(modal);
         }
-        modal.innerHTML = `<div style="background:#fff;padding:20px;border-radius:8px;">${html}</div>`;
+        modal.innerHTML = `<div style="background:#fff;padding:20px;border-radius:14px;">${html}</div>`;
         modal.style.display = 'flex';
     }
 
@@ -411,4 +383,3 @@
     </script>
 </body>
 </html>
-
