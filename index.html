@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestión de Préstamos</title>
     <style>
+        /* ...tu CSS actual... */
         body {
             background: linear-gradient(135deg, #e3f0ff 0%, #f9fbe7 100%);
             font-family: 'Segoe UI', Arial, sans-serif;
@@ -205,17 +206,51 @@
     <div id="prestamosContainer"></div>
 
     <script>
-    const form = document.getElementById('prestamoForm');
-    const container = document.getElementById('prestamosContainer');
-    let prestamos = JSON.parse(localStorage.getItem('prestamos')) || [];
+    // Cambia esta URL por la de tu SheetDB
+    const SHEETDB_API = 'https://sheetdb.io/api/v1/np1jtc9qv7t4a';
 
-    function guardarPrestamos() {
-        localStorage.setItem('prestamos', JSON.stringify(prestamos));
+    let prestamos = [];
+
+    async function cargarPrestamos() {
+        const res = await fetch(SHEETDB_API);
+        const data = await res.json();
+        prestamos = data.map(p => ({
+            ...p,
+            cuotas: p.cuotas ? JSON.parse(p.cuotas) : []
+        }));
+        renderPrestamos();
+    }
+
+    async function agregarPrestamo(prestamo) {
+        prestamo.id = Date.now().toString();
+        prestamo.cuotas = JSON.stringify(prestamo.cuotas || []);
+        await fetch(SHEETDB_API, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ data: [prestamo] })
+        });
+        await cargarPrestamos();
+    }
+
+    async function eliminarPrestamo(id) {
+        await fetch(`${SHEETDB_API}/id/${id}`, { method: 'DELETE' });
+        await cargarPrestamos();
+    }
+
+    async function actualizarPrestamo(id, datos) {
+        datos.cuotas = JSON.stringify(datos.cuotas || []);
+        await fetch(`${SHEETDB_API}/id/${id}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ data: datos })
+        });
+        await cargarPrestamos();
     }
 
     function renderPrestamos() {
+        const container = document.getElementById('prestamosContainer');
         container.innerHTML = '';
-        prestamos.forEach((prestamo, index) => {
+        prestamos.forEach((prestamo) => {
             const totalOriginal = (Number(prestamo.monto) + (Number(prestamo.monto) * Number(prestamo.interes) / 100)).toFixed(2);
             const totalPagado = prestamo.cuotas.reduce((sum, cuota) => sum + Number(cuota.monto), 0);
             const totalRestante = (totalOriginal - totalPagado).toFixed(2);
@@ -234,16 +269,16 @@
                     <div><strong>Cuotas:</strong> ${prestamo.cuotas.length}</div>
                 </div>
                 <div class="prestamo-actions">
-                    <button onclick="mostrarCuotas(${index})">Cuotas</button>
-                    <button onclick="editarPrestamo(${index})">Editar</button>
-                    <button onclick="eliminarPrestamo(${index})">Eliminar</button>
+                    <button onclick="mostrarCuotas('${prestamo.id}')">Cuotas</button>
+                    <button onclick="editarPrestamo('${prestamo.id}')">Editar</button>
+                    <button onclick="eliminarPrestamoPrompt('${prestamo.id}')">Eliminar</button>
                 </div>
             `;
             container.appendChild(card);
         });
     }
 
-    form.addEventListener('submit', function(e) {
+    document.getElementById('prestamoForm').addEventListener('submit', async function(e) {
         e.preventDefault();
         const nombre = document.getElementById('nombre').value;
         const monto = document.getElementById('monto').value;
@@ -251,7 +286,7 @@
         const interes = document.getElementById('interes').value;
         const frecuencia = document.getElementById('frecuencia').value;
 
-        prestamos.push({
+        await agregarPrestamo({
             nombre,
             monto,
             fecha,
@@ -259,21 +294,17 @@
             frecuencia,
             cuotas: []
         });
-        guardarPrestamos();
-        renderPrestamos();
-        form.reset();
+        e.target.reset();
     });
 
-    window.eliminarPrestamo = function(index) {
+    window.eliminarPrestamoPrompt = async function(id) {
         if (confirm('¿Seguro que deseas eliminar este préstamo?')) {
-            prestamos.splice(index, 1);
-            guardarPrestamos();
-            renderPrestamos();
+            await eliminarPrestamo(id);
         }
     }
 
-    window.editarPrestamo = function(index) {
-        const prestamo = prestamos[index];
+    window.editarPrestamo = function(id) {
+        const prestamo = prestamos.find(p => p.id === id);
         let html = `
             <h3>Editar Préstamo</h3>
             <form id="editarPrestamoForm">
@@ -294,21 +325,22 @@
         `;
         mostrarModal(html);
 
-        document.getElementById('editarPrestamoForm').onsubmit = function(e) {
+        document.getElementById('editarPrestamoForm').onsubmit = async function(e) {
             e.preventDefault();
-            prestamos[index].nombre = document.getElementById('editNombre').value;
-            prestamos[index].monto = document.getElementById('editMonto').value;
-            prestamos[index].fecha = document.getElementById('editFecha').value;
-            prestamos[index].interes = document.getElementById('editInteres').value;
-            prestamos[index].frecuencia = document.getElementById('editFrecuencia').value;
-            guardarPrestamos();
+            await actualizarPrestamo(id, {
+                nombre: document.getElementById('editNombre').value,
+                monto: document.getElementById('editMonto').value,
+                fecha: document.getElementById('editFecha').value,
+                interes: document.getElementById('editInteres').value,
+                frecuencia: document.getElementById('editFrecuencia').value,
+                cuotas: prestamo.cuotas
+            });
             cerrarModal();
-            renderPrestamos();
         };
     }
 
-    window.mostrarCuotas = function(index) {
-        const prestamo = prestamos[index];
+    window.mostrarCuotas = function(id) {
+        const prestamo = prestamos.find(p => p.id === id);
         let cuotasHtml = `<h3>Cuotas de ${prestamo.nombre}</h3>
             <form id="cuotaForm">
                 <input type="number" id="montoCuota" placeholder="Monto cuota" required>
@@ -329,8 +361,8 @@
                             <td>$${cuota.monto}</td>
                             <td>${cuota.fecha}</td>
                             <td>
-                                <button onclick="editarCuota(${index},${i})">Editar</button>
-                                <button onclick="eliminarCuota(${index},${i})">Eliminar</button>
+                                <button onclick="editarCuota('${id}',${i})">Editar</button>
+                                <button onclick="eliminarCuota('${id}',${i})">Eliminar</button>
                             </td>
                         </tr>
                     `).join('')}
@@ -340,45 +372,45 @@
         `;
         mostrarModal(cuotasHtml);
 
-        document.getElementById('cuotaForm').onsubmit = function(e) {
+        document.getElementById('cuotaForm').onsubmit = async function(e) {
             e.preventDefault();
             const montoCuota = document.getElementById('montoCuota').value;
             const fechaCuota = document.getElementById('fechaCuota').value;
-            prestamos[index].cuotas.push({ monto: montoCuota, fecha: fechaCuota });
-            guardarPrestamos();
-            mostrarCuotas(index);
+            prestamo.cuotas.push({ monto: montoCuota, fecha: fechaCuota });
+            await actualizarPrestamo(id, prestamo);
+            mostrarCuotas(id);
         };
     }
 
-    window.eliminarCuota = function(prestamoIndex, cuotaIndex) {
+    window.eliminarCuota = async function(prestamoId, cuotaIndex) {
+        const prestamo = prestamos.find(p => p.id === prestamoId);
         if (confirm('¿Seguro que deseas eliminar esta cuota?')) {
-            prestamos[prestamoIndex].cuotas.splice(cuotaIndex, 1);
-            guardarPrestamos();
-            mostrarCuotas(prestamoIndex);
-            renderPrestamos();
+            prestamo.cuotas.splice(cuotaIndex, 1);
+            await actualizarPrestamo(prestamoId, prestamo);
+            mostrarCuotas(prestamoId);
         }
     }
 
-    window.editarCuota = function(prestamoIndex, cuotaIndex) {
-        const cuota = prestamos[prestamoIndex].cuotas[cuotaIndex];
+    window.editarCuota = function(prestamoId, cuotaIndex) {
+        const prestamo = prestamos.find(p => p.id === prestamoId);
+        const cuota = prestamo.cuotas[cuotaIndex];
         let html = `
             <h3>Editar Cuota</h3>
             <form id="editarCuotaForm">
                 <input type="number" id="editMontoCuota" value="${cuota.monto}" required>
                 <input type="date" id="editFechaCuota" value="${cuota.fecha}" required>
                 <button type="submit">Guardar</button>
-                <button type="button" onclick="mostrarCuotas(${prestamoIndex})">Cancelar</button>
+                <button type="button" onclick="mostrarCuotas('${prestamoId}')">Cancelar</button>
             </form>
         `;
         mostrarModal(html);
 
-        document.getElementById('editarCuotaForm').onsubmit = function(e) {
+        document.getElementById('editarCuotaForm').onsubmit = async function(e) {
             e.preventDefault();
-            prestamos[prestamoIndex].cuotas[cuotaIndex].monto = document.getElementById('editMontoCuota').value;
-            prestamos[prestamoIndex].cuotas[cuotaIndex].fecha = document.getElementById('editFechaCuota').value;
-            guardarPrestamos();
-            mostrarCuotas(prestamoIndex);
-            renderPrestamos();
+            prestamo.cuotas[cuotaIndex].monto = document.getElementById('editMontoCuota').value;
+            prestamo.cuotas[cuotaIndex].fecha = document.getElementById('editFechaCuota').value;
+            await actualizarPrestamo(prestamoId, prestamo);
+            mostrarCuotas(prestamoId);
         };
     }
 
@@ -408,7 +440,7 @@
         if (modal) modal.style.display = 'none';
     }
 
-    renderPrestamos();
+    cargarPrestamos();
     </script>
 </body>
 </html>
