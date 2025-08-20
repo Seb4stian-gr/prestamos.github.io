@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Préstamos</title>
+    <style>
+        body {
+            background: #f4f6f8;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        h2 {
+            text-align: center;
+            margin-top: 30px;
+            color: #333;
+        }
+        form {
+            background: #fff;
+            padding: 20px 30px;
+            margin: 30px auto 20px auto;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            max-width: 500px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+        }
+        form input, form select, form button {
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            font-size: 1rem;
+        }
+        form button {
+            background: #1976d2;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        form button:hover {
+            background: #1565c0;
+        }
+        table {
+            width: 95%;
+            margin: 0 auto 40px auto;
+            border-collapse: collapse;
+            background: #fff;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        th, td {
+            padding: 12px 8px;
+            text-align: center;
+            border-bottom: 1px solid #eee;
+        }
+        th {
+            background: #1976d2;
+            color: #fff;
+            font-weight: 500;
+        }
+        tr:last-child td {
+            border-bottom: none;
+        }
+        button {
+            padding: 7px 14px;
+            border-radius: 5px;
+            border: none;
+            margin: 2px;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        button[onclick*="editar"] {
+            background: #ffb300;
+            color: #fff;
+        }
+        button[onclick*="eliminar"] {
+            background: #e53935;
+            color: #fff;
+        }
+        button[onclick*="mostrarCuotas"] {
+            background: #43a047;
+            color: #fff;
+        }
+        /* Modal */
+        #modalCuotas {
+            backdrop-filter: blur(2px);
+        }
+        #modalCuotas > div {
+            min-width: 320px;
+            max-width: 400px;
+        }
+        #modalCuotas h3 {
+            margin-top: 0;
+            color: #1976d2;
+        }
+        #modalCuotas form input, #modalCuotas form button, #modalCuotas form select {
+            width: 90%;
+            margin-bottom: 10px;
+        }
+        #modalCuotas table {
+            width: 100%;
+            margin-bottom: 10px;
+            box-shadow: none;
+            border-radius: 0;
+        }
+        #modalCuotas th {
+            background: #2196f3;
+        }
+        @media (max-width: 600px) {
+            form, table {
+                width: 99%;
+                padding: 10px;
+            }
+            th, td {
+                font-size: 0.9rem;
+                padding: 8px 4px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h2>Gestión de Préstamos</h2>
+    <form id="prestamoForm">
+        <input type="text" id="nombre" placeholder="Nombre" required>
+        <input type="number" id="monto" placeholder="Monto" required>
+        <input type="date" id="fecha" required>
+        <input type="number" id="interes" placeholder="Interés (%)" required>
+        <select id="frecuencia" required>
+            <option value="">Frecuencia</option>
+            <option value="mensual">Mensual</option>
+            <option value="semanal">Semanal</option>
+            <option value="quincenal">Quincenal</option>
+            <option value="diaria">Diaria</option>
+        </select>
+        <button type="submit">Agregar</button>
+    </form>
+
+    <table>
+        <thead>
+            <tr>
+                <th>nombre</th>
+                <th>monto</th>
+                <th>fecha</th>
+                <th>interes</th>
+                <th>frecuencia</th>
+                <th>total</th>
+                <th>restante</th>
+                <th>cuotas</th>
+                <th>acciones</th>
+            </tr>
+        </thead>
+        <tbody id="tablaPrestamos">
+            <!-- Aquí se agregan los préstamos -->
+        </tbody>
+    </table>
+
+    <script>
+    const form = document.getElementById('prestamoForm');
+    const tabla = document.getElementById('tablaPrestamos');
+    let prestamos = JSON.parse(localStorage.getItem('prestamos')) || [];
+
+    function guardarPrestamos() {
+        localStorage.setItem('prestamos', JSON.stringify(prestamos));
+    }
+
+    function renderPrestamos() {
+        tabla.innerHTML = '';
+        prestamos.forEach((prestamo, index) => {
+            const totalOriginal = (Number(prestamo.monto) + (Number(prestamo.monto) * Number(prestamo.interes) / 100)).toFixed(2);
+            const totalPagado = prestamo.cuotas.reduce((sum, cuota) => sum + Number(cuota.monto), 0);
+            const totalRestante = (totalOriginal - totalPagado).toFixed(2);
+
+            const fila = document.createElement('tr');
+            fila.innerHTML = `
+                <td>${prestamo.nombre}</td>
+                <td>${prestamo.monto}</td>
+                <td>${prestamo.fecha}</td>
+                <td>${prestamo.interes}</td>
+                <td>${prestamo.frecuencia}</td>
+                <td>${totalOriginal}</td>
+                <td>${totalRestante}</td>
+                <td>
+                    <button onclick="mostrarCuotas(${index})">Cuotas (${prestamo.cuotas.length})</button>
+                </td>
+                <td>
+                    <button onclick="editarPrestamo(${index})">Editar</button>
+                    <button onclick="eliminarPrestamo(${index})">Eliminar</button>
+                </td>
+            `;
+            tabla.appendChild(fila);
+        });
+    }
+
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const nombre = document.getElementById('nombre').value;
+        const monto = document.getElementById('monto').value;
+        const fecha = document.getElementById('fecha').value;
+        const interes = document.getElementById('interes').value;
+        const frecuencia = document.getElementById('frecuencia').value;
+
+        prestamos.push({
+            nombre,
+            monto,
+            fecha,
+            interes,
+            frecuencia,
+            cuotas: []
+        });
+        guardarPrestamos();
+        renderPrestamos();
+        form.reset();
+    });
+
+    window.eliminarPrestamo = function(index) {
+        if (confirm('¿Seguro que deseas eliminar este préstamo?')) {
+            prestamos.splice(index, 1);
+            guardarPrestamos();
+            renderPrestamos();
+        }
+    }
+
+    window.editarPrestamo = function(index) {
+        const prestamo = prestamos[index];
+        let html = `
+            <h3>Editar Préstamo</h3>
+            <form id="editarPrestamoForm">
+                <input type="text" id="editNombre" value="${prestamo.nombre}" required>
+                <input type="number" id="editMonto" value="${prestamo.monto}" required>
+                <input type="date" id="editFecha" value="${prestamo.fecha}" required>
+                <input type="number" id="editInteres" value="${prestamo.interes}" required>
+                <select id="editFrecuencia" required>
+                    <option value="">Frecuencia</option>
+                    <option value="mensual" ${prestamo.frecuencia === 'mensual' ? 'selected' : ''}>Mensual</option>
+                    <option value="semanal" ${prestamo.frecuencia === 'semanal' ? 'selected' : ''}>Semanal</option>
+                    <option value="quincenal" ${prestamo.frecuencia === 'quincenal' ? 'selected' : ''}>Quincenal</option>
+                    <option value="diaria" ${prestamo.frecuencia === 'diaria' ? 'selected' : ''}>Diaria</option>
+                </select>
+                <button type="submit">Guardar</button>
+                <button type="button" onclick="cerrarModal()">Cancelar</button>
+            </form>
+        `;
+        mostrarModal(html);
+
+        document.getElementById('editarPrestamoForm').onsubmit = function(e) {
+            e.preventDefault();
+            prestamos[index].nombre = document.getElementById('editNombre').value;
+            prestamos[index].monto = document.getElementById('editMonto').value;
+            prestamos[index].fecha = document.getElementById('editFecha').value;
+            prestamos[index].interes = document.getElementById('editInteres').value;
+            prestamos[index].frecuencia = document.getElementById('editFrecuencia').value;
+            guardarPrestamos();
+            cerrarModal();
+            renderPrestamos();
+        };
+    }
+
+    // Modal para cuotas
+    window.mostrarCuotas = function(index) {
+        const prestamo = prestamos[index];
+        let cuotasHtml = '<h3>Cuotas de ' + prestamo.nombre + '</h3>';
+        cuotasHtml += `
+            <form id="cuotaForm">
+                <input type="number" id="montoCuota" placeholder="Monto cuota" required>
+                <input type="date" id="fechaCuota" required>
+                <button type="submit">Agregar cuota</button>
+            </form>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Monto</th>
+                        <th>Fecha</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${prestamo.cuotas.map((cuota, i) => `
+                        <tr>
+                            <td>${cuota.monto}</td>
+                            <td>${cuota.fecha}</td>
+                            <td>
+                                <button onclick="editarCuota(${index},${i})">Editar</button>
+                                <button onclick="eliminarCuota(${index},${i})">Eliminar</button>
+                            </td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+            <button onclick="cerrarModal()">Cerrar</button>
+        `;
+        mostrarModal(cuotasHtml);
+
+        document.getElementById('cuotaForm').onsubmit = function(e) {
+            e.preventDefault();
+            const montoCuota = document.getElementById('montoCuota').value;
+            const fechaCuota = document.getElementById('fechaCuota').value;
+            prestamos[index].cuotas.push({ monto: montoCuota, fecha: fechaCuota });
+            guardarPrestamos();
+            mostrarCuotas(index); // Actualiza la vista
+        };
+    }
+
+    window.eliminarCuota = function(prestamoIndex, cuotaIndex) {
+        if (confirm('¿Seguro que deseas eliminar esta cuota?')) {
+            prestamos[prestamoIndex].cuotas.splice(cuotaIndex, 1);
+            guardarPrestamos();
+            mostrarCuotas(prestamoIndex);
+            renderPrestamos();
+        }
+    }
+
+    window.editarCuota = function(prestamoIndex, cuotaIndex) {
+        const cuota = prestamos[prestamoIndex].cuotas[cuotaIndex];
+        let html = `
+            <h3>Editar Cuota</h3>
+            <form id="editarCuotaForm">
+                <input type="number" id="editMontoCuota" value="${cuota.monto}" required>
+                <input type="date" id="editFechaCuota" value="${cuota.fecha}" required>
+                <button type="submit">Guardar</button>
+                <button type="button" onclick="mostrarCuotas(${prestamoIndex})">Cancelar</button>
+            </form>
+        `;
+        mostrarModal(html);
+
+        document.getElementById('editarCuotaForm').onsubmit = function(e) {
+            e.preventDefault();
+            prestamos[prestamoIndex].cuotas[cuotaIndex].monto = document.getElementById('editMontoCuota').value;
+            prestamos[prestamoIndex].cuotas[cuotaIndex].fecha = document.getElementById('editFechaCuota').value;
+            guardarPrestamos();
+            mostrarCuotas(prestamoIndex);
+            renderPrestamos();
+        };
+    }
+
+    // Modal simple
+    function mostrarModal(html) {
+        let modal = document.getElementById('modalCuotas');
+        if (!modal) {
+            modal = document.createElement('div');
+            modal.id = 'modalCuotas';
+            modal.style.position = 'fixed';
+            modal.style.top = '0';
+            modal.style.left = '0';
+            modal.style.width = '100vw';
+            modal.style.height = '100vh';
+            modal.style.background = 'rgba(0,0,0,0.5)';
+            modal.style.display = 'flex';
+            modal.style.alignItems = 'center';
+            modal.style.justifyContent = 'center';
+            modal.style.zIndex = '1000';
+            document.body.appendChild(modal);
+        }
+        modal.innerHTML = `<div style="background:#fff;padding:20px;border-radius:8px;">${html}</div>`;
+        modal.style.display = 'flex';
+    }
+
+    window.cerrarModal = function() {
+        const modal = document.getElementById('modalCuotas');
+        if (modal) modal.style.display = 'none';
+    }
+
+    renderPrestamos();
+    </script>
+</body>
+</html>
