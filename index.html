@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestión de Préstamos</title>
     <style>
-        /* ...tu CSS actual... */
         body {
             background: linear-gradient(135deg, #e3f0ff 0%, #f9fbe7 100%);
             font-family: 'Segoe UI', Arial, sans-serif;
@@ -123,7 +122,6 @@
             background: linear-gradient(90deg, #43a047 70%, #a5d6a7 100%);
             color: #fff;
         }
-        /* Modal */
         #modalCuotas {
             backdrop-filter: blur(2px);
         }
@@ -212,13 +210,17 @@
     let prestamos = [];
 
     async function cargarPrestamos() {
-        const res = await fetch(SHEETDB_API);
-        const data = await res.json();
-        prestamos = data.map(p => ({
-            ...p,
-            cuotas: p.cuotas ? JSON.parse(p.cuotas) : []
-        }));
-        renderPrestamos();
+        try {
+            const res = await fetch(SHEETDB_API);
+            const data = await res.json();
+            prestamos = data.map(p => ({
+                ...p,
+                cuotas: p.cuotas ? JSON.parse(p.cuotas) : []
+            }));
+            renderPrestamos();
+        } catch (error) {
+            console.error('Error al cargar préstamos:', error);
+        }
     }
 
     async function agregarPrestamo(prestamo) {
@@ -250,6 +252,12 @@
     function renderPrestamos() {
         const container = document.getElementById('prestamosContainer');
         container.innerHTML = '';
+        // Ordenar alfabéticamente por nombre, usando valor por defecto si falta
+        prestamos.sort((a, b) => {
+            const nombreA = (a.nombre || '').toLowerCase();
+            const nombreB = (b.nombre || '').toLowerCase();
+            return nombreA.localeCompare(nombreB);
+        });
         prestamos.forEach((prestamo) => {
             const totalOriginal = (Number(prestamo.monto) + (Number(prestamo.monto) * Number(prestamo.interes) / 100)).toFixed(2);
             const totalPagado = prestamo.cuotas.reduce((sum, cuota) => sum + Number(cuota.monto), 0);
@@ -445,4 +453,3 @@
     </script>
 </body>
 </html>
-
