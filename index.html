@@ -260,10 +260,6 @@
             card.innerHTML = `
                 <div class="prestamo-info">
                     <div><strong>Nombre:</strong> ${prestamo.nombre}</div>
-                    <div><strong>Monto:</strong> $${prestamo.monto}</div>
-                    <div><strong>Fecha:</strong> ${prestamo.fecha}</div>
-                    <div><strong>Interés:</strong> ${prestamo.interes}%</div>
-                    <div><strong>Frecuencia:</strong> ${prestamo.frecuencia}</div>
                     <div><strong>Total:</strong> $${totalOriginal}</div>
                     <div><strong>Restante:</strong> $${totalRestante}</div>
                     <div><strong>Cuotas:</strong> ${prestamo.cuotas.length}</div>
@@ -308,10 +304,15 @@
         let html = `
             <h3>Editar Préstamo</h3>
             <form id="editarPrestamoForm">
+                label for="editNombre">Nombre:</label>
                 <input type="text" id="editNombre" value="${prestamo.nombre}" required>
+                <label for="editMonto">Monto:</label>
                 <input type="number" id="editMonto" value="${prestamo.monto}" required>
+                <label for="editFecha">Fecha:</label>
                 <input type="date" id="editFecha" value="${prestamo.fecha}" required>
+                <label for="editInteres">Interés (%):</label>
                 <input type="number" id="editInteres" value="${prestamo.interes}" required>
+                <label for="editFrecuencia">Frecuencia:</label>
                 <select id="editFrecuencia" required>
                     <option value="">Frecuencia</option>
                     <option value="mensual" ${prestamo.frecuencia === 'mensual' ? 'selected' : ''}>Mensual</option>
