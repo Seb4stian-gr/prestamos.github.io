@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Registro Semanal</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .resumen-form {
+            background: #23232f;
+            padding: 18px;
+            border-radius: 16px;
+            max-width: 420px;
+            margin: 24px auto;
+            box-shadow: 0 4px 16px rgba(184,193,236,0.10);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .resumen-table {
+            background: #23232f;
+            color: #b8c1ec;
+            border-radius: 16px;
+            margin: 24px auto;
+            max-width: 420px;
+            box-shadow: 0 4px 16px rgba(184,193,236,0.10);
+            padding: 12px;
+        }
+        .resumen-table th, .resumen-table td {
+            padding: 8px 6px;
+            text-align: left;
+        }
+        .resumen-table th {
+            background: #39375b;
+            color: #b8c1ec;
+        }
+        .resumen-table tr:nth-child(even) {
+            background: #181a20;
+        }
+        .resumen-datos {
+            background: #23232f;
+            color: #b8c1ec;
+            border-radius: 16px;
+            margin: 24px auto;
+            max-width: 420px;
+            box-shadow: 0 4px 16px rgba(184,193,236,0.10);
+            padding: 18px 12px;
+        }
+        .resumen-datos h4 {
+            margin: 0 0 12px 0;
+            color: #eebbc3;
+            font-size: 1.15rem;
+            text-align: center;
+        }
+        .resumen-datos .dato {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 1.07rem;
+        }
+        .resumen-datos .dato strong {
+            color: #b8c1ec;
+        }
+        .capital-final {
+            text-align: center;
+            font-size: 1.25rem;
+            color: #43a047;
+            margin-top: 18px;
+        }
+    </style>
+</head>
+<header>
+    <nav>
+        <a href="index.html">Inicio</a>
+    </nav>
+</header>
+<body>
+    <h2>Registro Semanal</h2>
+    <form class="resumen-form" id="registroSemanalForm">
+        <label for="fechaInicio">Fecha inicio:</label>
+        <input type="date" id="fechaInicio" required>
+        <label for="fechaFin">Fecha fin:</label>
+        <input type="date" id="fechaFin" required>
+        <label for="dineroCajaAnterior">Caja del registro anterior:</label>
+        <input type="number" id="dineroCajaAnterior" min="0" step="0.01" value="0" required>
+        <label for="gastos">Gastos:</label>
+        <input type="number" id="gastos" min="0" step="0.01" value="0" required>
+        <button type="submit">Calcular registro semanal</button>
+    </form>
+
+    <div id="resultado"></div>
+    <h3 style="text-align:center;color:#b8c1ec;">Historial semanal</h3>
+    <table class="resumen-table" id="historialTable">
+        <thead>
+            <tr>
+                <th>Periodo</th>
+                <th>Caja anterior</th>
+                <th>Cuotas</th>
+                <th>Préstamos</th>
+                <th>Caja actual</th>
+                <th>Restantes</th>
+                <th>Gastos</th>
+                <th>Capital</th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+
+    <script>
+    const SHEETDB_API = 'https://sheetdb.io/api/v1/np1jtc9qv7t4a';
+
+    function guardarHistorial(periodo) {
+        let historial = JSON.parse(localStorage.getItem('historialSemanal') || '[]');
+        historial.push(periodo);
+        localStorage.setItem('historialSemanal', JSON.stringify(historial));
+        renderHistorial();
+    }
+
+    function renderHistorial() {
+        let historial = JSON.parse(localStorage.getItem('historialSemanal') || '[]');
+        const tbody = document.querySelector('#historialTable tbody');
+        tbody.innerHTML = '';
+        historial.forEach(item => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${item.fechaInicio} a ${item.fechaFin}</td>
+                <td>$${item.cajaAnterior}</td>
+                <td>$${item.totalCuotas}</td>
+                <td>$${item.totalPrestamos}</td>
+                <td>$${item.cajaActual}</td>
+                <td>$${item.totalRestantes}</td>
+                <td>$${item.gastos}</td>
+                <td>$${item.capital}</td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    async function obtenerCuotasYPrestamos() {
+        const res = await fetch(SHEETDB_API);
+        const prestamos = await res.json();
+        let cuotas = [];
+        let prestamosPeriodo = [];
+        let restantes = [];
+        prestamos.forEach(p => {
+            // Cuotas
+            if (p.cuotas) {
+                try {
+                    const arr = JSON.parse(p.cuotas);
+                    arr.forEach(cuota => {
+                        cuotas.push({
+                            monto: Number(cuota.monto),
+                            fecha: cuota.fecha
+                        });
+                    });
+                } catch {}
+            }
+            // Préstamos
+            if (p.fecha && p.monto) {
+                prestamosPeriodo.push({
+                    monto: Number(p.monto),
+                    fecha: p.fecha,
+                    interes: Number(p.interes || 0),
+                    cuotas: p.cuotas ? JSON.parse(p.cuotas) : []
+                });
+            }
+        });
+        // Calcular total de todos los restantes
+        restantes = prestamosPeriodo.map(p => {
+            const totalOriginal = p.monto + (p.monto * p.interes / 100);
+            const totalPagado = p.cuotas.reduce((sum, cuota) => sum + Number(cuota.monto), 0);
+            return totalOriginal - totalPagado;
+        });
+        return { cuotas, prestamosPeriodo, restantes };
+    }
+
+    document.getElementById('registroSemanalForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const fechaInicio = document.getElementById('fechaInicio').value;
+        const fechaFin = document.getElementById('fechaFin').value;
+        const cajaAnterior = Number(document.getElementById('dineroCajaAnterior').value) || 0;
+        const gastos = Number(document.getElementById('gastos').value) || 0;
+        if (fechaInicio > fechaFin) {
+            alert('La fecha de inicio debe ser menor o igual a la fecha de fin.');
+            return;
+        }
+        const { cuotas, prestamosPeriodo, restantes } = await obtenerCuotasYPrestamos();
+        // Filtrar cuotas en el rango
+        const totalCuotas = cuotas
+            .filter(c => c.fecha >= fechaInicio && c.fecha <= fechaFin)
+            .reduce((sum, c) => sum + c.monto, 0);
+
+        // Filtrar préstamos en el rango
+        const totalPrestamos = prestamosPeriodo
+            .filter(p => p.fecha >= fechaInicio && p.fecha <= fechaFin)
+            .reduce((sum, p) => sum + p.monto, 0);
+
+        // Total de todos los restantes (de todos los préstamos)
+        const totalRestantes = restantes.reduce((sum, r) => sum + r, 0);
+
+        // Caja actual: cuotas recogidas en el periodo + caja anterior - préstamos en el periodo
+        const cajaActual = totalCuotas + cajaAnterior - totalPrestamos- gastos;
+
+        // Capital: caja actual + totalRestantes - gastos
+        const capital = cajaActual + totalRestantes;
+
+        document.getElementById('resultado').innerHTML = `
+            <div class="resumen-datos">
+                <h4>Resumen del periodo<br>${fechaInicio} a ${fechaFin}</h4>
+                <div class="dato"><strong>Caja anterior:</strong> <span>$${cajaAnterior.toFixed(2)}</span></div>
+                <div class="dato"><strong>Cuotas recogidas:</strong> <span>$${totalCuotas.toFixed(2)}</span></div>
+                <div class="dato"><strong>Préstamos entregados:</strong> <span>$${totalPrestamos.toFixed(2)}</span></div>
+                <div class="dato"><strong>Caja actual:</strong> <span>$${cajaActual.toFixed(2)}</span></div>
+                <div class="dato"><strong>Restante por cobrar:</strong> <span>$${totalRestantes.toFixed(2)}</span></div>
+                <div class="dato"><strong>Gastos:</strong> <span>$${gastos.toFixed(2)}</span></div>
+                <div class="capital-final"><strong>Capital final:</strong> $${capital.toFixed(2)}</div>
+            </div>
+        `;
+        guardarHistorial({
+            fechaInicio,
+            fechaFin,
+            totalCuotas: totalCuotas.toFixed(2),
+            totalPrestamos: totalPrestamos.toFixed(2),
+            totalRestantes: totalRestantes.toFixed(2),
+            gastos: gastos.toFixed(2),
+            cajaAnterior: cajaAnterior.toFixed(2),
+            cajaActual: cajaActual.toFixed(2),
+            capital: capital.toFixed(2)
+        });
+    });
+
+    renderHistorial();
+    </script>
+</body>
+</html>
