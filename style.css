@@ -14,6 +14,21 @@ h2 {
     font-weight: 700;
     text-shadow: 0 2px 8px #181a20;
 }
+header {
+    background: #23232f;
+    padding: 14px;
+    text-align: center;
+    box-shadow: 0 4px 16px rgba(184,193,236,0.1);
+}
+header a {
+    color: #b8c1ec;
+    text-decoration: none;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+header a:hover {
+    color: #eebbc3;
+
 form {
     background: #23232f;
     padding: 22px 18px;
@@ -213,3 +228,4 @@ label{
     from { opacity: 0; transform: translateY(30px);}
     to { opacity: 1; transform: translateY(0);}
 }
+
