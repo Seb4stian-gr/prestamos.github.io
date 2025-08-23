@@ -1,0 +1,273 @@
+/* ======================
+   BASE GENERAL
+   ====================== */
+body {
+    background: #181a20;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+}
+header {
+    background: #23232f;
+    padding: 14px;
+    text-align: center;
+    box-shadow: 0 4px 16px rgba(184,193,236,0.1);
+}
+header a {
+    color: #b8c1ec;
+    text-decoration: none;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+header a:hover {
+    color: #eebbc3;
+}
+h2, h3 {
+    text-align: center;
+    margin: 22px auto 14px auto;
+    color: #b8c1ec;
+    font-size: 1.9rem;
+    font-weight: 700;
+    text-shadow: 0 2px 8px #181a20;
+}
+h3 {
+    font-size: 1.5rem;
+    margin-top: 28px;
+}
+
+/* ======================
+   FORMULARIO
+   ====================== */
+.resumen-form {
+    background: #23232f;
+    padding: 22px 18px;
+    margin: 16px auto;
+    border-radius: 18px;
+    box-shadow: 0 4px 16px rgba(184,193,236,0.10);
+    max-width: 420px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    animation: fadeIn 0.7s;
+}
+.resumen-form label {
+    color: #b8c1ec;
+    font-size: 1rem;
+}
+.resumen-form input {
+    padding: 13px;
+    border-radius: 12px;
+    border: 1.5px solid #39375b;
+    font-size: 1.05rem;
+    background: #181a20;
+    color: #b8c1ec;
+    transition: border 0.2s;
+}
+.resumen-form input:focus {
+    border: 2px solid #b8c1ec;
+    outline: none;
+}
+.resumen-form button {
+    background: #39375b;
+    color: #b8c1ec;
+    border: none;
+    border-radius: 12px;
+    padding: 14px;
+    font-size: 1.07rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+}
+.resumen-form button:hover {
+    background: #b8c1ec;
+    color: #23232f;
+    transform: scale(1.03);
+}
+
+/* ======================
+   RESULTADO
+   ====================== */
+.resumen-datos {
+    background: #23232f;
+    color: #b8c1ec;
+    border-radius: 18px;
+    margin: 18px auto;
+    max-width: 420px;
+    box-shadow: 0 4px 16px rgba(184,193,236,0.10);
+    padding: 18px 12px;
+    animation: fadeInUp 0.7s;
+}
+.resumen-datos h4 {
+    margin: 0 0 12px 0;
+    color: #eebbc3;
+    font-size: 1.15rem;
+    text-align: center;
+}
+.resumen-datos .dato {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    font-size: 1.07rem;
+}
+.resumen-datos .dato strong {
+    color: #b8c1ec;
+}
+.capital-final {
+    text-align: center;
+    font-size: 1.25rem;
+    color: #43a047;
+    margin-top: 18px;
+    font-weight: bold;
+}
+
+/* ======================
+   TABLA HISTORIAL
+   ====================== */
+.resumen-table {
+    background: #23232f;
+    color: #b8c1ec;
+    border-radius: 18px;
+    margin: 18px auto;
+    max-width: 95%;
+    box-shadow: 0 4px 16px rgba(184,193,236,0.10);
+    padding: 12px;
+    overflow-x: auto;
+    animation: fadeIn 0.7s;
+}
+.resumen-table th, .resumen-table td {
+    padding: 10px 8px;
+    text-align: center;
+    white-space: nowrap;
+    font-size: 0.95rem;
+}
+.resumen-table th {
+    background: #39375b;
+    color: #b8c1ec;
+}
+.resumen-table tr:nth-child(even) {
+    background: #181a20;
+}
+/* Color especial para Caja Final, Cobro, Cobro Total */
+.resumen-table td:nth-child(6),
+.resumen-table th:nth-child(6),
+.resumen-table td:nth-child(7),
+.resumen-table th:nth-child(7),
+.resumen-table td:nth-child(8),
+.resumen-table th:nth-child(8) {
+    color: #eebbc3;
+    font-weight: bold;
+}
+
+/* ======================
+   BOTONES TABLA
+   ====================== */
+.btn {
+    padding: 6px 10px;
+    margin: 2px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+.btn-editar {
+    background: #4cafef;
+    color: #fff;
+}
+.btn-eliminar {
+    background: #e63946;
+    color: #fff;
+}
+.btn:hover {
+    transform: scale(1.05);
+    filter: brightness(1.1);
+}
+
+/* ======================
+   MODAL
+   ====================== */
+#modal {
+    position: fixed;
+    inset: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0,0,0,0.6);
+    z-index: 1000;
+}
+#modal .box {
+    background: #23232f;
+    color: #b8c1ec;
+    padding: 20px;
+    border-radius: 18px;
+    width: 95%;
+    max-width: 420px;
+    box-shadow: 0 4px 16px rgba(184,193,236,0.2);
+    animation: fadeInUp 0.5s;
+}
+#modal .box h3 {
+    margin-top: 0;
+    color: #eebbc3;
+}
+#modal .box input {
+    width: 100%;
+    padding: 10px;
+    border-radius: 10px;
+    border: 1px solid #39375b;
+    background: #181a20;
+    color: #b8c1ec;
+    margin-top: 8px;
+}
+#modal .actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    margin-top: 14px;
+}
+.btn-sec {
+    background: #39375b;
+    color: #fff;
+    border-radius: 8px;
+    padding: 8px 12px;
+}
+.btn-pri {
+    background: #4cafef;
+    color: #fff;
+    border-radius: 8px;
+    padding: 8px 12px;
+}
+
+/* ======================
+   RESPONSIVE
+   ====================== */
+@media (max-width: 600px) {
+    h2 {
+        font-size: 1.35rem;
+    }
+    .resumen-form, .resumen-datos {
+        max-width: 96vw;
+        padding: 16px 12px;
+    }
+    .resumen-table {
+        font-size: 0.85rem;
+        max-width: 98vw;
+    }
+    .resumen-table th, .resumen-table td {
+        padding: 8px 4px;
+    }
+    #modal .box {
+        width: 98vw;
+        padding: 14px;
+    }
+}
+
+/* Animaciones */
+@keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.97); }
+    to { opacity: 1; transform: scale(1); }
+}
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+}
