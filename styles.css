@@ -1,0 +1,232 @@
+body {
+  background: #181a20;
+  font-family: "Segoe UI", Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+}
+h2 {
+  text-align: center;
+  margin-top: 32px;
+  color: #b8c1ec;
+  font-size: 2.1rem;
+  letter-spacing: 1px;
+  font-weight: 700;
+  text-shadow: 0 2px 8px #181a20;
+}
+form {
+  background: #23232f;
+  padding: 22px 18px;
+  margin: 24px auto 18px auto;
+  border-radius: 18px;
+  box-shadow: 0 4px 16px rgba(184, 193, 236, 0.1);
+  max-width: 420px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  animation: fadeIn 0.7s;
+}
+form input,
+form select {
+  padding: 15px;
+  border-radius: 12px;
+  border: 1.5px solid #39375b;
+  font-size: 1.15rem;
+  background: #181a20;
+  color: #b8c1ec;
+  transition: border 0.2s;
+}
+form input:focus,
+form select:focus {
+  border: 2px solid #b8c1ec;
+  outline: none;
+}
+form button {
+  background: #39375b;
+  color: #b8c1ec;
+  border: none;
+  border-radius: 12px;
+  padding: 15px;
+  font-size: 1.15rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+  margin-top: 4px;
+}
+form button:hover {
+  background: #b8c1ec;
+  color: #23232f;
+  transform: scale(1.03);
+}
+.prestamo-card {
+  background: #23232f;
+  border-radius: 18px;
+  box-shadow: 0 4px 16px rgba(184, 193, 236, 0.13);
+  margin: 18px auto;
+  max-width: 420px;
+  padding: 20px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  border-left: 6px solid #b8c1ec;
+  position: relative;
+  animation: fadeInUp 0.7s;
+}
+.prestamo-card::after {
+  content: "";
+  position: absolute;
+  right: 18px;
+  top: 18px;
+  width: 32px;
+  height: 32px;
+  background: url("https://img.icons8.com/fluency/48/loan.png") no-repeat center
+    center;
+  background-size: contain;
+  opacity: 0.08;
+  filter: grayscale(1) brightness(0.7);
+}
+.prestamo-info {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px 18px;
+  font-size: 1.07rem;
+}
+.prestamo-info div {
+  color: #b8c1ec;
+  background: #181a20;
+  border-radius: 7px;
+  padding: 7px 8px;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+}
+.prestamo-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 12px;
+}
+.prestamo-actions button {
+  flex: 1;
+  padding: 13px;
+  font-size: 1.07rem;
+  border-radius: 12px;
+  border: none;
+  font-weight: 600;
+  transition: background 0.2s, transform 0.1s;
+}
+.prestamo-actions button[onclick*="editar"] {
+  background: #b8c1ec;
+  color: #23232f;
+}
+.prestamo-actions button[onclick*="eliminar"] {
+  background: #e63946;
+  color: #fff;
+}
+.prestamo-actions button[onclick*="mostrarCuotas"] {
+  background: #2d6a4f;
+  color: #fff;
+}
+.prestamo-actions button:hover {
+  transform: scale(1.05);
+  filter: brightness(1.1);
+}
+label {
+  color: #b8c1ec;
+}
+#modalCuotas {
+  backdrop-filter: blur(2px);
+}
+#modalCuotas > div {
+  min-width: 90vw;
+  max-width: 98vw;
+  padding: 14px;
+  border-radius: 18px;
+  background: #23232f;
+  box-shadow: 0 4px 16px rgba(184, 193, 236, 0.13);
+  animation: fadeIn 0.5s;
+}
+#modalCuotas h3 {
+  margin-top: 0;
+  color: #b8c1ec;
+  font-size: 1.35rem;
+  font-weight: 700;
+}
+#modalCuotas form input,
+#modalCuotas form button,
+#modalCuotas form select {
+  width: 98%;
+  margin-bottom: 10px;
+  font-size: 1.07rem;
+  border-radius: 10px;
+  background: #181a20;
+  color: #b8c1ec;
+  border: 1.5px solid #39375b;
+}
+#modalCuotas table {
+  width: 100%;
+  margin-bottom: 10px;
+  box-shadow: none;
+  border-radius: 0;
+  font-size: 1rem;
+  background: #181a20;
+  color: #b8c1ec;
+}
+#modalCuotas th {
+  background: #39375b;
+  color: #b8c1ec;
+  font-size: 1.07rem;
+}
+#modalCuotas td {
+  padding: 8px 4px;
+  border-bottom: 1px solid #39375b;
+}
+#modalCuotas button {
+  font-size: 1.07rem;
+  border-radius: 10px;
+  background: #b8c1ec;
+  color: #23232f;
+  border: none;
+}
+#modalCuotas button:hover {
+  background: #23232f;
+  color: #b8c1ec;
+  border: 1px solid #b8c1ec;
+}
+@media (max-width: 600px) {
+  h2 {
+    font-size: 1.35rem;
+  }
+  form,
+  .prestamo-card {
+    max-width: 98vw;
+    padding: 12px 4px;
+  }
+  .prestamo-info {
+    font-size: 1rem;
+    grid-template-columns: 1fr;
+  }
+  #modalCuotas > div {
+    min-width: 99vw;
+    max-width: 99vw;
+    padding: 7px;
+  }
+} /* Animaciones */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
