@@ -37,20 +37,11 @@
 
     let prestamos = [];
 
-    async function cargarPrestamos() {
-        try {
-            const res = await fetch(SHEETDB_API);
-            const data = await res.json();
-            prestamos = data.map(p => ({
-                ...p,
-                cuotas: p.cuotas ? JSON.parse(p.cuotas) : []
-            }));
-            renderPrestamos();
-        } catch (error) {
-            console.error('Error al cargar préstamos:', error);
-        }
-    }
+    //aqui va cargar prestamos
 
+
+
+        /////
     async function agregarPrestamo(prestamo) {
         prestamo.id = Date.now().toString();
         prestamo.cuotas = JSON.stringify(prestamo.cuotas || []);
@@ -281,5 +272,6 @@
     </script>
 </body>
 </html>
+
 
 
