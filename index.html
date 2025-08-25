@@ -9,10 +9,10 @@
 
 <body>
     <header>
-    <nav>
-        <a href="cuentas.html">Cuentas</a>
-    </nav>
-</header>
+        <nav>
+            <a href="cuentas.html">Cuentas</a>
+        </nav>
+    </header>
     <h2>Gestión de Préstamos</h2>
     <form id="prestamoForm">
         <input type="text" id="nombre" placeholder="Nombre" required>
@@ -32,30 +32,44 @@
     <div id="prestamosContainer"></div>
 
     <script>
-    // Cambia esta URL por la de tu SheetDB
     const SHEETDB_API = 'https://sheetdb.io/api/v1/7rtossxk5uor8';
-
     let prestamos = [];
 
-    //aqui va cargar prestamos
+    async function cargarPrestamos() {
+        try {
+            const res = await fetch(SHEETDB_API);
+            const data = await res.json();
+            prestamos = data.map(p => ({
+                ...p,
+                cuotas: p.cuotas ? JSON.parse(p.cuotas) : []
+            }));
+            renderPrestamos();
+        } catch (error) {
+            console.error('Error al cargar préstamos:', error);
+        }
+    }
 
-
-
-        /////
     async function agregarPrestamo(prestamo) {
         prestamo.id = Date.now().toString();
         prestamo.cuotas = JSON.stringify(prestamo.cuotas || []);
-        await fetch(SHEETDB_API, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ data: [prestamo] })
-        });
-        await cargarPrestamos();
+        try {
+            await fetch(SHEETDB_API, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ data: [prestamo] })
+            });
+            // Guardamos localmente (cuotas como array para trabajar en frontend)
+            prestamos.push({ ...prestamo, cuotas: JSON.parse(prestamo.cuotas) });
+            renderPrestamos();
+        } catch (error) {
+            console.error("Error al agregar préstamo:", error);
+        }
     }
 
     async function eliminarPrestamo(id) {
         await fetch(`${SHEETDB_API}/id/${id}`, { method: 'DELETE' });
-        await cargarPrestamos();
+        prestamos = prestamos.filter(p => p.id !== id);
+        renderPrestamos();
     }
 
     async function actualizarPrestamo(id, datos) {
@@ -65,18 +79,18 @@
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ data: datos })
         });
-        await cargarPrestamos();
+        // Actualizar localmente
+        const index = prestamos.findIndex(p => p.id === id);
+        if (index !== -1) {
+            prestamos[index] = { ...datos, id, cuotas: JSON.parse(datos.cuotas) };
+        }
+        renderPrestamos();
     }
 
     function renderPrestamos() {
         const container = document.getElementById('prestamosContainer');
         container.innerHTML = '';
-        // Ordenar alfabéticamente por nombre, usando valor por defecto si falta
-        prestamos.sort((a, b) => {
-            const nombreA = (a.nombre || '').toLowerCase();
-            const nombreB = (b.nombre || '').toLowerCase();
-            return nombreA.localeCompare(nombreB);
-        });
+        prestamos.sort((a, b) => (a.nombre || '').localeCompare(b.nombre || ''));
         prestamos.forEach((prestamo) => {
             const totalOriginal = (Number(prestamo.monto) + (Number(prestamo.monto) * Number(prestamo.interes) / 100)).toFixed(2);
             const totalPagado = prestamo.cuotas.reduce((sum, cuota) => sum + Number(cuota.monto), 0);
@@ -109,14 +123,7 @@
         const interes = document.getElementById('interes').value;
         const frecuencia = document.getElementById('frecuencia').value;
 
-        await agregarPrestamo({
-            nombre,
-            monto,
-            fecha,
-            interes,
-            frecuencia,
-            cuotas: []
-        });
+        await agregarPrestamo({ nombre, monto, fecha, interes, frecuencia, cuotas: [] });
         e.target.reset();
     });
 
@@ -131,17 +138,16 @@
         let html = `
             <h3>Editar Préstamo</h3>
             <form id="editarPrestamoForm">
-                <label for="editNombre">Nombre:</label>
+                <label>Nombre:</label>
                 <input type="text" id="editNombre" value="${prestamo.nombre}" required>
-                <label for="editMonto">Monto:</label>
+                <label>Monto:</label>
                 <input type="number" id="editMonto" value="${prestamo.monto}" required>
-                <label for="editFecha">Fecha:</label>
+                <label>Fecha:</label>
                 <input type="date" id="editFecha" value="${prestamo.fecha}" required>
-                <label for="editInteres">Interés (%):</label>
+                <label>Interés (%):</label>
                 <input type="number" id="editInteres" value="${prestamo.interes}" required>
-                <label for="editFrecuencia">Frecuencia:</label>
+                <label>Frecuencia:</label>
                 <select id="editFrecuencia" required>
-                    <option value="">Frecuencia</option>
                     <option value="mensual" ${prestamo.frecuencia === 'mensual' ? 'selected' : ''}>Mensual</option>
                     <option value="semanal" ${prestamo.frecuencia === 'semanal' ? 'selected' : ''}>Semanal</option>
                     <option value="quincenal" ${prestamo.frecuencia === 'quincenal' ? 'selected' : ''}>Quincenal</option>
@@ -202,9 +208,10 @@
 
         document.getElementById('cuotaForm').onsubmit = async function(e) {
             e.preventDefault();
-            const montoCuota = document.getElementById('montoCuota').value;
-            const fechaCuota = document.getElementById('fechaCuota').value;
-            prestamo.cuotas.push({ monto: montoCuota, fecha: fechaCuota });
+            prestamo.cuotas.push({ 
+                monto: document.getElementById('montoCuota').value, 
+                fecha: document.getElementById('fechaCuota').value 
+            });
             await actualizarPrestamo(id, prestamo);
             mostrarCuotas(id);
         };
@@ -272,6 +279,3 @@
     </script>
 </body>
 </html>
-
-
-
